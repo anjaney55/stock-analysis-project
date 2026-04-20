@@ -41,9 +41,41 @@ SELECT
 FROM news
 GROUP BY hour;
 
+SELECT * FROM news_hourly;
+
 CREATE TABLE stock_hourly AS
 SELECT
 	date_format(time,'%Y-%m-%d %H:00:00') AS hour,
     AVG(close_price) AS avg_price
 FROM stock
 GROUP BY hour;
+
+SELECT * FROM stock_hourly;
+
+SELECT
+n.hour,
+n.avg_sentiment,
+s.avg_price
+FROM news_hourly as n
+INNER JOIN stock_hourly as s
+ON n.hour = s.hour;
+
+SELECT 
+	n.hour,
+	n. avg_sentiment,
+	s.avg_price,
+	(s.avg_price - LAG(s.avg_price) OVER (ORDER BY n.hour)) AS price_change
+FROM news_hourly AS n
+JOIN stock_hourly AS s
+ON n.hour = s.hour;
+
+SELECT
+	CASE
+		WHEN avg_sentiment > 0 THEN 'Positive'
+		ELSE 'Negative'
+    END AS sentiment_type,
+    AVG(avg_price) AS avg_stock_price
+FROM news_hourly AS n
+JOIN stock_hourly AS s
+ON n.hour = s.hour
+GROUP BY sentiment_type;
