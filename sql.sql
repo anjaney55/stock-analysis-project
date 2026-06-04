@@ -9,14 +9,15 @@ CREATE TABLE news (
     time DATETIME
 );
 
-CREATE TABLE stock (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    time DATETIME,
-    open_price FLOAT,
-    close_price FLOAT
-);
 
 SELECT * FROM news;
+
+CREATE TABLE stock (
+id INT AUTO_INCREMENT PRIMARY KEY,
+time DATETIME,
+open_price FLOAT,
+close_price FLOAT
+);
 
 -- Adding the sentiment and sentiment_label column 
 ALTER TABLE news
@@ -50,7 +51,15 @@ SELECT
 FROM stock
 GROUP BY hour;
 
-SELECT * FROM stock_hourly;
+DROP TABLE stock_hourly;
+CREATE TABLE stock_hourly AS 
+SELECT
+	date_format(time,'%Y-%m-%d %H:00:00') AS hour,
+	AVG(close_price) AS avg_price
+FROM stock
+GROUP BY date_format(time,'%Y-%m-%d %H:00:00');
+
+SELECT * FROM stock_hourly; 
 
 SELECT
 n.hour,
@@ -79,3 +88,39 @@ FROM news_hourly AS n
 JOIN stock_hourly AS s
 ON n.hour = s.hour
 GROUP BY sentiment_type;
+
+SELECT * FROM news_hourly;
+SELECT * FROM stock_hourly;
+
+SELECT 
+    n.hour,
+    n.avg_sentiment,
+    s.avg_price
+FROM news_hourly n
+JOIN stock_hourly s
+ON n.hour = s.hour;
+
+SELECT 
+    n.hour,
+    n.avg_sentiment,
+    s.avg_price
+FROM news_hourly n
+JOIN stock_hourly s
+ON DATE(n.hour) = DATE(s.hour)
+AND HOUR(n.hour) = HOUR(s.hour);
+
+DESC news_hourly;
+DESC stock_hourly;
+
+SELECT hour FROM news_hourly LIMIT 5;
+SELECT hour FROM stock_hourly LIMIT 5;
+
+
+SELECT * FROM news_hourly;
+
+SELECT * FROM stock_hourly;
+
+DROP TABLE stock;
+
+SELECT * FROM stock;
+
