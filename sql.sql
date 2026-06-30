@@ -88,10 +88,8 @@ FROM news_hourly AS n
 JOIN stock_hourly AS s
 ON n.hour = s.hour
 GROUP BY sentiment_type;
-
 SELECT * FROM news_hourly;
 SELECT * FROM stock_hourly;
-
 SELECT 
     n.hour,
     n.avg_sentiment,
@@ -99,7 +97,6 @@ SELECT
 FROM news_hourly n
 JOIN stock_hourly s
 ON n.hour = s.hour;
-
 SELECT 
     n.hour,
     n.avg_sentiment,
@@ -108,19 +105,76 @@ FROM news_hourly n
 JOIN stock_hourly s
 ON DATE(n.hour) = DATE(s.hour)
 AND HOUR(n.hour) = HOUR(s.hour);
-
 DESC news_hourly;
 DESC stock_hourly;
-
 SELECT hour FROM news_hourly LIMIT 5;
 SELECT hour FROM stock_hourly LIMIT 5;
-
-
 SELECT * FROM news_hourly;
-
 SELECT * FROM stock_hourly;
-
 DROP TABLE stock;
-
 SELECT * FROM stock;
 
+
+
+-- For Fresh data 
+
+TRUNCATE TABLE news;
+TRUNCATE TABLE stock;
+
+-- Check Table Structure
+DESC news;
+DESC stock;
+
+-- Verify Data Loaded
+SELECT * FROM news LIMIT 10;
+ALTER TABLE news
+DROP COLUMN time;
+
+SELECT * FROM stock LIMIT 10;
+
+-- Positive vs Negative News vs Neutral news
+SELECT 
+	sentiment_label,
+    COUNT(*) AS total_news
+FROM news
+GROUP BY sentiment_label;
+
+-- Average Sentiment
+SELECT
+	AVG(sentiment) AS avg_sentiment
+FROM news;
+-- Highest Stock Price
+SELECT MAX(close_price) AS heighest_price
+FROM stock;
+-- Lowest Stock Price
+SELECT MIN(close_price) AS lowest_price
+FROM stock;
+-- Average Closing Price
+SELECT AVG(close_price) AS avg_close_price
+FROM stock;
+
+-- Create Dashboard-Friendly Tables
+CREATE TABLE news_summary AS
+SELECT
+	sentiment_label,
+    COUNT(*) AS total_news
+FROM news
+GROUP BY sentiment_label;
+
+CREATE TABLE stock_sumary AS
+SELECT
+	DATE(time) AS trading_day,
+    AVG(close_price) AS avg_close_price
+FROM stock
+GROUP BY DATE(time);
+
+-- Export Results
+SELECT * FROM news_summary;
+SELECT * FROM stock_sumary;
+
+SELECT sentiment_label, COUNT(*)
+FROM news
+GROUP BY sentiment_label;
+
+SELECT AVG(sentiment)
+FROM news;
